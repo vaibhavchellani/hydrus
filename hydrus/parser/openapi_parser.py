@@ -94,7 +94,7 @@ def check_collection(class_name: str,
             object_["class_name"] = class_name
             object_["collection"] = collection
             global_[class_name] = object_
-    return object_
+    return global_[class_name]
 
 
 def check_array_param(paths_: Dict[str, Any]) -> bool:
@@ -223,7 +223,6 @@ def get_class_details(global_: Dict[str,
             vocabFlag=True
             errFlag = False
             if prop not in global_["class_names"]:
-                print(prop)
                 try:
                     ref = properties[prop]["$ref"].split('/')
                     print("ref is ")
@@ -238,6 +237,9 @@ def get_class_details(global_: Dict[str,
                     # ERROR
                     print("error")
                     errFlag = True
+                    pass
+                except AttributeError:
+                    print("Attribute Error")
                     pass
             flag = False
             if prop in required and len(required) > 0:
@@ -378,7 +380,7 @@ def get_parameters(global_: Dict[str, Any],
         # coz there are instances where no schema key is present
         if allow_parameter(parameter):
             try:
-                # check if class has been pared
+                # check if class has been parsed
                 if parameter["schema"]["$ref"].split(
                         '/')[2] in global_["class_names"]:
                     param = "vocab:" + \
@@ -395,7 +397,9 @@ def get_parameters(global_: Dict[str, Any],
                     param = "vocab:" + \
                             parameter["schema"]["$ref"].split('/')[2]
             except KeyError:
-                type = parameter["type"]
+                print("type is ")
+                print(parameter)
+                type = parameter["schema"]["type"]
                 if type == "array":
                     # TODO change this after we find a way to represent array
                     # in parameter using semantics
@@ -475,6 +479,10 @@ def get_paths(global_: Dict[str, Any]) -> None:
     for path in paths:
         for method in paths[path]:
             class_name = check_for_ref(global_, path, paths[path][method])
+            print("Class name")
+            print(class_name)
+            print(method)
+            print(paths[path])
             if class_name != "":
                 # do further processing
                 get_ops(global_, path, method, class_name)
