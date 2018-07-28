@@ -89,6 +89,7 @@ def check_collection(class_name: str,
             # collection var
             if not global_[class_name]["collection"]:
                 global_[class_name]["collection"] = True
+                object_ = global_[class_name]
         except KeyError:
             # if the class has not been parsed we will insert the object
             object_["class_name"] = class_name
@@ -398,7 +399,7 @@ def get_parameters(global_: Dict[str, Any],
                     param = "vocab:" + \
                             parameter["schema"]["$ref"].split('/')[2]
             except KeyError:
-                type = parameter["type"]
+                type = parameter["schema"]["type"]
                 if type == "array":
                     # TODO change this after we find a way to represent array
                     # in parameter using semantics
