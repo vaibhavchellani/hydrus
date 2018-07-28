@@ -53,8 +53,7 @@ def check_collection(class_name: str,
                      global_: Dict[str,
                                    Any],
                      schema_obj: Dict[str, Any],
-                     method: str)->Dict[str,
-                                        Any]:
+                     method: str)->str:
     """
     Checks if the method is collection or not , checks if the method is valid
     :param class_name: name of class being parsed
@@ -95,7 +94,9 @@ def check_collection(class_name: str,
             object_["class_name"] = class_name
             object_["collection"] = collection
             global_[class_name] = object_
-    return object_
+        return class_name
+    else:
+        return ""
 
 
 def check_array_param(paths_: Dict[str, Any]) -> bool:
@@ -234,11 +235,12 @@ def get_class_details(global_: Dict[str,
                 except KeyError:
                     # throw exception
                     # ERROR
-                    print("error")
+                    print("No Ref found leaving blank and moving on ..")
                     errFlag = True
                     pass
                 except AttributeError:
                     # ERROR thow
+                    print("No Attribute found")
                     pass
             flag = False
             if prop in required and len(required) > 0:
@@ -279,15 +281,15 @@ def check_for_ref(global_: Dict[str, Any],
             except KeyError:
                 class_location = block["responses"][obj]["schema"]["items"]["$ref"].split(
                     '/')
-            object_ = check_collection(
+            name = check_collection(
                 class_name=class_location[2],
                 global_=global_,
                 schema_obj=block["responses"][obj]["schema"],
                 method=path)
 
-            if object_["class_name"] == "":
+            if name == "":
                 # cannot parse because method not supported
-                return object_["class_name"]
+                return ""
             get_class_details(
                 global_,
                 get_data_at_location(
@@ -309,11 +311,11 @@ def check_for_ref(global_: Dict[str, Any],
                     class_location = obj["schema"]["$ref"].split('/')
                 except KeyError:
                     class_location = obj["schema"]["items"]["$ref"].split('/')
-                object_ = check_collection(
+                name = check_collection(
                     class_location[2], global_, obj["schema"], path)
-                if object_["class_name"] == "":
+                if name == "":
                     # cannot parse because method not supported
-                    return object_["class_name"]
+                    return ""
                 get_class_details(
                     global_,
                     get_data_at_location(
@@ -326,9 +328,7 @@ def check_for_ref(global_: Dict[str, Any],
                 pass
     # cannot parse because no external ref
     # TODO throw exception
-    print("ERROR ERROR ERRROR")
-    print(block)
-    print(path)
+    print("Unable to process as no ref found in responses or parameter block")
     return ""
 
 
@@ -484,6 +484,7 @@ def get_paths(global_: Dict[str, Any]) -> None:
                 get_ops(global_, path, method, class_name)
 
 
+
 def parse(doc: Dict[str, Any]) -> str:
     """
     To parse the "info" block and create Hydra Doc
@@ -533,6 +534,7 @@ def parse(doc: Dict[str, Any]) -> str:
     hydra_doc = hydra_doc.replace('null', '"null"')
 
     return hydra_doc
+
 
 
 if __name__ == "__main__":
