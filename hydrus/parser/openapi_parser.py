@@ -89,7 +89,7 @@ def check_collection(class_name: str,
             # collection var
             if not global_[class_name]["collection"]:
                 global_[class_name]["collection"] = True
-                object_ = global_[class_name]
+            object_ = global_[class_name]
         except KeyError:
             # if the class has not been parsed we will insert the object
             object_["class_name"] = class_name
@@ -224,11 +224,8 @@ def get_class_details(global_: Dict[str,
             vocabFlag=True
             errFlag = False
             if prop not in global_["class_names"]:
-                print(prop)
                 try:
                     ref = properties[prop]["$ref"].split('/')
-                    print("ref is ")
-                    print(ref)
                     if ref[0]=="#":
                         print("sending to get class details")
                         get_class_details(global_,get_data_at_location(ref,global_["doc"]),get_class_name(ref),get_class_name(ref))
@@ -255,7 +252,7 @@ def get_class_details(global_: Dict[str,
                         "vocab:" + prop, prop, required=flag, read=True, write=True))
             else:
                 global_[class_name]["prop_definition"].append(HydraClassProp(
-                    prop, prop, required=flag, read=True, write=True))
+                    properties[prop]["$ref"], prop, required=flag, read=True, write=True))
         global_[class_name]["path"] = path
         global_[class_name]["class_definition"] = classDefinition
         global_["class_names"].add(class_name)
@@ -329,6 +326,9 @@ def check_for_ref(global_: Dict[str, Any],
                 pass
     # cannot parse because no external ref
     # TODO throw exception
+    print("ERROR ERROR ERRROR")
+    print(block)
+    print(path)
     return ""
 
 
